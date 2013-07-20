@@ -25,13 +25,13 @@ func (t TestController) Edit(id string, x int) revel.Result {
 func (t TestController) isOwner(id string, x int) revel.Result {
 	fmt.Println("before, really works:" + id)
 	fmt.Println(x)
-	return nil //if it does not return nil, e.g. return t.Redirect , then it will stop the chain and redirect directly
+	return nil // The filter chain only continue if the return value is nil
 }
 
 func (t TestController) callAfter(id string, x int) revel.Result {
 	fmt.Println("after, really works:" + id)
 	fmt.Println(x)
-	return nil // AFTER's return value does not really useful, unless nothing returned in the Action
+	return nil // should be always nil, otherwise it will override the value set in Action
 }
 
 func TestAddControllerFilter(t *testing.T) {
@@ -39,12 +39,13 @@ func TestAddControllerFilter(t *testing.T) {
 	AddControllerFilter(TestController.callAfter, revel.AFTER, "Show")
 
 	c := revel.NewController(nil, nil)
-	var controller TestController
+	controller := &TestController{}
 	c.AppController = controller
 	c.MethodName = "Show"
 	c.Params = &revel.Params{Values: make(url.Values)}
 	c.Params.Set("id", "cool")
 	c.Params.Set("x", "5")
+	c.Type = &revel.ControllerType{Type: reflect.TypeOf(controller).Elem()}
 
 	methodArg := []*revel.MethodArg{
 		&revel.MethodArg{Name: "id", Type: reflect.TypeOf("")},
@@ -58,7 +59,6 @@ func TestAddControllerFilter(t *testing.T) {
 	ControllerFilter(c, fc)
 
 	//test Edit method
-
 	c.MethodName = "Edit"
 	c.MethodType = &revel.MethodType{Name: "Edit", Args: methodArg}
 	fmt.Println("Going to call Edit:")

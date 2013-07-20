@@ -6,6 +6,10 @@ or AFTER the Action be called, with all the parameters ready for use.
 
 The method will bind exact the same parameter as the Action function.
 
+If you have a 'generic' method want to register for different controller & specific methods, it is achievable
+via define this method on a 'parent' controller and define methods on each 'child' controller to call it, then 
+register the methods on 'child' for each controller.
+
 ### How to install 
 `go get github.com/arkxu/revel.filter`
 
