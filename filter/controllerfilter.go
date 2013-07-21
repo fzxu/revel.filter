@@ -4,6 +4,7 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"github.com/robfig/revel"
 	"reflect"
+	"strings"
 )
 
 var (
@@ -45,7 +46,7 @@ func ControllerFilter(c *revel.Controller, fc []revel.Filter) {
 
 		if registeredMethod.When == revel.BEFORE {
 			for _, method := range registeredMethod.Methods {
-				if method == c.MethodName {
+				if strings.EqualFold(method, c.MethodName) {
 					targetMethod := reflect.ValueOf(registeredMethod.TargetMethod)
 					resultValue = targetMethod.Call(methodArgs)[0]
 				}
@@ -61,7 +62,7 @@ func ControllerFilter(c *revel.Controller, fc []revel.Filter) {
 		for _, registeredMethod := range controllerFilters[c.Type.Type] {
 			if registeredMethod.When == revel.AFTER {
 				for _, method := range registeredMethod.Methods {
-					if method == c.MethodName {
+					if strings.EqualFold(method, c.MethodName) {
 						targetMethod := reflect.ValueOf(registeredMethod.TargetMethod)
 						resultValue = targetMethod.Call(methodArgs)[0]
 					}
