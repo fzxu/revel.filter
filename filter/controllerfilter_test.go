@@ -22,9 +22,8 @@ func (t TestController) Edit(id string, x int) revel.Result {
 	return t.Redirect("/")
 }
 
-func (t TestController) isOwner(id string, x int) revel.Result {
+func (t TestController) isOwner(id string) revel.Result {
 	fmt.Println("before, really works:" + id)
-	fmt.Println(x)
 	return nil // The filter chain only continue if the return value is nil
 }
 
@@ -45,7 +44,23 @@ func TestAddControllerFilter(t *testing.T) {
 	c.Params = &revel.Params{Values: make(url.Values)}
 	c.Params.Set("id", "cool")
 	c.Params.Set("x", "5")
-	c.Type = &revel.ControllerType{Type: reflect.TypeOf(controller).Elem()}
+
+	var methods []*revel.MethodType
+	methods = append(methods,
+		&revel.MethodType{
+			Name: "isOwner",
+			Args: []*revel.MethodArg{&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*string)(nil))}}})
+	methods = append(methods,
+		&revel.MethodType{
+			Name: "callAfter",
+			Args: []*revel.MethodArg{
+				&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*string)(nil))},
+				&revel.MethodArg{Name: "x", Type: reflect.TypeOf((*int)(nil))}}})
+	revel.RegisterController(c, methods)
+
+	c.Type = &revel.ControllerType{Type: reflect.TypeOf(controller).Elem(), Methods: methods}
+
+	// fmt.Println(c.Type.Method("isOwner"))
 
 	methodArg := []*revel.MethodArg{
 		&revel.MethodArg{Name: "id", Type: reflect.TypeOf("")},

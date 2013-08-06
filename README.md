@@ -4,7 +4,8 @@ Parametered Controller Filter for Revel webframework
 With this Revel fitler, make it possible to define controller method that can be triggerred BEFORE
 or AFTER the Action be called, with all the parameters ready for use.
 
-The method will bind exact the same parameter as the Action function.
+The method will bind the parameters according to the definition of the method, it could be different from the
+parameter defined on the Action.
 
 If you have a 'generic' method want to register for different controller & specific methods, it is achievable
 via define this method on a 'parent' controller and define methods on each 'child' controller to call it, then 
@@ -15,7 +16,22 @@ register the methods on 'child' for each controller.
 
 ### How to use
 
-In the sample, the method `isOwner` will be called before `Edit` or `Delete` a question, passing the question id. 
+First of all, it is required to remove the following lines in reflect.go in revel project
+(https://github.com/robfig/revel/blob/master/harness/reflect.go#L400).
+
+```Go
+  // Is it public?
+  // if !funcDecl.Name.IsExported() {
+  //  return
+  // }
+```
+
+This is to allow revel to register the methods who also returns revel.Result but not defined as public in the controller.
+Those are actually the filter methods.
+
+
+In the sample, the method `isOwner` will be called before `Edit`, `Delete` or `Update` a question, passing the question id
+or the Question instance. 
 The method `callAfter` will be called after `Show` a question.
 
 Please check the test code for more detailed info.
@@ -71,7 +87,12 @@ Add then register the method need to be called BEFORE or AFTER:
   func (c Questions) Delete(id string) revel.Result {
     // deleted a question here
     return c.Redirect("/questions")
-  }  
+  }
+
+  func (c Questions) Update(question *model.Question) revel.Result {
+    // deleted a question here
+    return c.Redirect("/questions")
+  }
 
   // GET /questions/1
   func (c Questions) Show(id string) revel.Result {
@@ -92,7 +113,7 @@ Add then register the method need to be called BEFORE or AFTER:
   }
 
   func init() {
-    filter.AddControllerFilter(Questions.isOwner, revel.BEFORE, "Edit", "Delete")
+    filter.AddControllerFilter(Questions.isOwner, revel.BEFORE, "Edit", "Delete", "Update")
     filter.AddControllerFilter(Questions.callAfter, revel.AFTER, "Show")
   }
 
