@@ -58,10 +58,10 @@ func ControllerFilter(c *revel.Controller, fc []revel.Filter) {
 		resultValue = getResultValue(resultValuesAfter)
 	}
 
-	if resultValue.Kind() == reflect.Interface && !resultValue.IsNil() {
+	// only set the c.Result if the Action should not be called or it returns nil
+	if c.Result == nil && resultValue.Kind() == reflect.Interface && !resultValue.IsNil() {
 		c.Result = resultValue.Interface().(revel.Result)
 	}
-
 }
 
 // bind the parameter to the filter methods based on the method definition

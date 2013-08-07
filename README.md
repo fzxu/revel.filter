@@ -4,8 +4,8 @@ Parametered Controller Filter for Revel webframework
 With this Revel fitler, make it possible to define controller method that can be triggerred BEFORE
 or AFTER the Action be called, with all the parameters ready for use.
 
-The method will bind the parameters according to the definition of the method, it could be different from the
-parameter defined on the Action.
+The method will be binding with the parameters according to its signature. The signature of the filter method could 
+be different from defined on the Action.
 
 If you have a 'generic' method want to register for different controller & specific methods, it is achievable
 via define this method on a 'parent' controller and define methods on each 'child' controller to call it, then 
@@ -26,9 +26,19 @@ First of all, it is required to remove the following lines in reflect.go in reve
   // }
 ```
 
-This is to allow revel to register the methods who also returns revel.Result but not defined as public in the controller.
+This is to allow revel to register both public and private Actions (all of them returns revel.Result which is a balanced restriction).
 Those are actually the filter methods.
 
+Then it is required to run
+
+```Bash
+go get github.com/robfig/revel/revel
+```
+
+So that it recompiles the revel.
+
+
+### Sample
 
 In the sample, the method `isOwner` will be called before `Edit`, `Delete` or `Update` a question, passing the question id
 or the Question instance. 
