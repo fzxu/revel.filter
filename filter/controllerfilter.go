@@ -92,6 +92,7 @@ func invokeMethod(receiver reflect.Value, registeredMethod *RegisteredMethod, c 
 
 			methodArgs := bindParameter(receiver, methodType, c.Params)
 			resultValue = targetMethod.Call(methodArgs)[0]
+			return
 		}
 	}
 	return
